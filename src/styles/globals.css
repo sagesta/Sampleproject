@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: Jakarta;
+  src: url("../../public/fonts/PlusJakartaSans.ttf");
+}
+
+@theme {
+  /* Black */
+  --color-black-100: #101928;
+
+  /* Blue */
+  --color-blue-100: #1a78f2;
+  --color-blue-200: #daefff;
+
+  /* Gray */
+  --color-grey-100: #f9fafb;
+  --color-grey-200: #667185;
+  --color-grey-300: #d0d5dd;
+  --color-grey-400: #e4e7ec;
+  --color-grey-500: #5e615e;
+  --color-grey-600: #f0f2f5;
+
+  /* Orange */
+  --color-orange-100: #fa9874;
+  --color-orange-200: #f8931f;
+}
+
+body {
+  font-family: Jakarta;
+}
