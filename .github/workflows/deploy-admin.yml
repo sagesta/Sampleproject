@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'nodejs-app-main/**'
+      - '**'  # Watch all files in the root since Dockerfile is there
       - '.github/workflows/deploy-admin.yml'
 
 jobs:
@@ -28,7 +28,7 @@ jobs:
       - name: Build and Push to Docker Hub
         uses: docker/build-push-action@v5
         with:
-          context: nodejs-app-main  # Adjust if Dockerfile is elsewhere
+          context: .  # Changed from nodejs-app-main to root directory
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/nodejsapp:latest
 
