@@ -37,7 +37,7 @@ jobs:
         with:
           host: ${{ secrets.AZURE_HOST }}
           username: ${{ secrets.AZURE_USER }}
-          password: ${{ secrets.AZURE_PASSWORD }}
+          key: ${{ secrets.AZURE_SSH_KEY }}  # Use SSH key instead of password
           port: 22
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/nodejsapp:latest
