@@ -1,0 +1,46 @@
+name: Deploy Admin Frontend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'nodejs-app-main/**'
+      - '.github/workflows/deploy-admin.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push to Docker Hub
+        uses: docker/build-push-action@v5
+        with:
+          context: nodejs-app-main  # Adjust if Dockerfile is elsewhere
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/nodejsapp:latest
+
+      - name: SSH and Deploy on Azure Linux VM
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USER }}
+          password: ${{ secrets.AZURE_PASSWORD }}
+          port: 22
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/nodejsapp:latest
+            docker stop nodejsapp || true
+            docker rm nodejsapp || true
+            docker run -d -p 3000:3000 --name nodejsapp ${{ secrets.DOCKER_USERNAME }}/nodejsapp:latest
