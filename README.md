@@ -1,41 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Continuous Deployment Pipeline for Node.js Application
 
-## Getting Started
+This repository contains a Node.js application with automated deployment to an Azure VM using GitHub Actions and Docker.
 
-First, run the development server:
+## Project Overview
+
+This project implements a CI/CD pipeline that:
+1. Builds a Docker image for a Node.js application
+2. Pushes the image to Docker Hub
+3. Automatically deploys the latest image to an Azure VM
+
+## Prerequisites
+
+Before setting up this pipeline, you need:
+
+- A GitHub account
+- A Docker Hub account
+- An Azure VM with SSH access
+- Docker installed on your Azure VM
+
+## Setup Instructions
+
+### 1. Fork/Clone this Repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd <repository-name>
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure GitHub Secrets
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+For the workflow to run successfully, add these secrets to your GitHub repository:
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+| Secret Name | Description |
+|-------------|-------------|
+| DOCKER_USERNAME | Your Docker Hub username |
+| DOCKER_PASSWORD | Your Docker Hub password or access token |
+| VM_HOST | Public IP address of your Azure VM |
+| VM_USER | SSH username for your Azure VM (e.g., azureuser) |
+| VM_PASSWORD | SSH password for your VM (or use SSH key alternative) |
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+To add secrets:
+1. Go to your GitHub repository
+2. Navigate to Settings > Secrets and variables > Actions
+3. Click "New repository secret" and add each secret
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Understanding the Workflow
 
-## Learn More
+The GitHub Actions workflow (`deploy-admin.yml`) will:
 
-To learn more about Next.js, take a look at the following resources:
+- Trigger when changes are pushed to the `main` branch in the `nodejs-app-main/` directory
+- Build the Docker image using the Dockerfile
+- Push the image to Docker Hub with the tag `<your-username>/nodejsapp:latest`
+- SSH into your Azure VM
+- Pull the latest Docker image
+- Stop and remove any existing container with the same name
+- Run a new container with the updated image
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+### 4. Docker Configuration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The workflow uses the Dockerfile in the root directory to build the application image. Ensure your Dockerfile is properly configured to run your Node.js application.
 
-## Deploy on Vercel
+### 5. Azure VM Requirements
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Make sure your Azure VM:
+- Has Docker installed
+- Has port 3000 open in its network security group
+- Has sufficient permissions to pull images from Docker Hub
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
-# Sampleproject
+## Usage
+
+Once set up, the deployment process is automatic:
+
+1. Make changes to your application in the `nodejs-app-main/` directory
+2. Commit and push to the `main` branch
+3. GitHub Actions will handle the rest!
+
+Your application will be accessible at `http://<your-vm-ip>:3000`
+
+## Troubleshooting
+
+If you encounter issues with the deployment:
+
+1. Check GitHub Actions logs for error messages
+2. Verify all secrets are correctly configured
+3. Ensure your VM has sufficient resources to run the container
+4. Confirm network access between GitHub Actions, Docker Hub, and your VM
+
